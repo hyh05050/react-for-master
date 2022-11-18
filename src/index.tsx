@@ -15,7 +15,9 @@ const lightTheme = {
   //borderColor,linkColor, hoverColor...
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
 root.render(
   <React.Fragment>
     <ThemeProvider theme={darkTheme}>

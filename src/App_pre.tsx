@@ -1,3 +1,4 @@
+import React from "react";
 import styled, { keyframes } from "styled-components";
 
 const Title = styled.h1`
@@ -17,7 +18,7 @@ const Container = styled.div`
   margin: 50px 0;
 `;
 
-const Box = styled.div`
+const Box = styled.div<{ bgColor: string }>`
   background-color: ${(props) => props.bgColor};
   width: 100px;
   height: 100px;
