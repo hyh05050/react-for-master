@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 
 function App() {
   const [value, setValue] = useState("");
@@ -14,8 +15,20 @@ function App() {
     console.log("hello", value);
   };
 
+  const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {};
+
+  const Container = styled.div`
+    background-color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
+  `;
+
+  const Button = styled.button`
+    color: ${(props) => props.theme.textColor};
+    background-color: ${(props) => props.theme.btnColor};
+  `;
+
   return (
-    <div>
+    <Container>
       {/* <Circle bgColor="teal" borderColor="red" />
       <Circle bgColor="tomato" text="props text" /> */}
       <form onSubmit={onSubmit}>
@@ -25,9 +38,9 @@ function App() {
           value={value}
           onChange={onChange}
         />
-        <button>Login</button>
+        <Button onClick={onClick}>Login</Button>
       </form>
-    </div>
+    </Container>
   );
 }
 
