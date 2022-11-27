@@ -4,9 +4,10 @@ import { StringMappingType } from "typescript";
 
 // and extend them!
 declare module "styled-components" {
-  export interface DefaultTheme {
+  export interface BackupTheme {
     textColor: string;
     bgColor: string;
-    accentColor: string;
+    btnColor: string;
+    backgroundColor?: string;
   }
 }

@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  background-color: ${(props) => props.theme.backgroundColor};
+  background-color: ${(props) => props.theme.bgColor};
 `;
 
 const Container = styled.div`
