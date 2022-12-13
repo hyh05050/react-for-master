@@ -1,8 +1,8 @@
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { ITodo, toDoState } from "../atoms";
+import { dropState, ITodo, toDoState } from "../atoms";
 import DraggableCard from "./DraggableCard";
 
 const Wrapper = styled.div`
@@ -78,6 +78,7 @@ const TaskInput = styled.input`
 `;
 
 function Board({ board, toDos, index }: IBoardProps) {
+  const drop = useRecoilValue(dropState);
   const setToDos = useSetRecoilState(toDoState);
   const { register, setValue, handleSubmit } = useForm<IForm>();
   const onValid = ({ toDo }: IForm) => {
@@ -101,7 +102,7 @@ function Board({ board, toDos, index }: IBoardProps) {
   };
 
   return (
-    <Draggable draggableId={`board_${board}`} key={board} index={index}>
+    <Draggable draggableId={board} key={board} index={index}>
       {(provided) => (
         <Wrapper
           ref={provided.innerRef}
@@ -118,7 +119,7 @@ function Board({ board, toDos, index }: IBoardProps) {
               {...register("toDo", { required: true })}
             />
           </Form>
-          <Droppable droppableId={board}>
+          <Droppable droppableId={board} isDropDisabled={drop.todoDropFg}>
             {(provided, snapshot) => (
               <Area
                 isDraggingOver={snapshot.isDraggingOver}

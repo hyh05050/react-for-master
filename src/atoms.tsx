@@ -22,3 +22,11 @@ export const boardState = atom({
   key: "board",
   default: ["to_do", "doing", "done"],
 });
+
+export const dropState = atom({
+  key: "isDropDisabled",
+  default: {
+    boardDropFg: false,
+    todoDropFg: false,
+  },
+});

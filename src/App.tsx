@@ -1,12 +1,18 @@
 import styled from "styled-components";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  DragStart,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
-import { boardState, toDoState } from "./atoms";
+import { boardState, dropState, toDoState } from "./atoms";
 import Board from "./Components/Board";
 import { useEffect } from "react";
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   width: 100vw;
   margin: 0 auto;
   justify-content: center;
@@ -15,12 +21,12 @@ const Wrapper = styled.div`
 `;
 
 const Boards = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  gap: 10px;
-  position: fixed;
+  display: grid;
+  width: 50%;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(250px, 1fr);
+  place-content: center;
+  gap: 20px;
 `;
 
 const Wastebasket = styled.div`
@@ -36,6 +42,7 @@ const Wastebasket = styled.div`
 function App() {
   const [boards, setBoards] = useRecoilState(boardState);
   const [toDos, setToDos] = useRecoilState(toDoState);
+  const [drop, setDrop] = useRecoilState(dropState);
   const preTodos = JSON.parse(localStorage.getItem("todos") as string);
   const preBoards = JSON.parse(localStorage.getItem("boards") as string);
   useEffect(() => {
@@ -51,12 +58,18 @@ function App() {
     }
   }, []);
 
+  const onDragStart = ({ draggableId, source }: DragStart) => {
+    if (source.droppableId === "boards")
+      setDrop({ boardDropFg: false, todoDropFg: true });
+    else setDrop({ boardDropFg: true, todoDropFg: false });
+  };
+
   const onDragEnd = ({ destination, source }: DropResult) => {
     let isSameDrop = false;
     if (!destination) return;
     if (destination.droppableId === source.droppableId) isSameDrop = true;
     if (isSameDrop && destination.index === source.index) return;
-    console.log(source, destination);
+    // console.log(source, destination);
     if (source.droppableId === "boards") {
       if (destination.droppableId === "wastebasket") return;
       setBoards((prev) => {
@@ -70,7 +83,6 @@ function App() {
       setToDos((prev) => {
         const startPoint = [...prev[source.droppableId]];
         const dragItem = startPoint.splice(source.index, 1)[0];
-        console.log(dragItem);
         startPoint.splice(source.index, 1);
         const endPoint = isSameDrop
           ? startPoint
@@ -87,10 +99,14 @@ function App() {
     }
   };
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="boards">
-        {(provided) => (
-          <Wrapper>
+    <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
+      <Wrapper>
+        <Droppable
+          droppableId="boards"
+          isDropDisabled={drop.boardDropFg}
+          direction="horizontal"
+        >
+          {(provided) => (
             <Boards ref={provided.innerRef} {...provided.droppableProps}>
               {boards.map((board, index) => (
                 <Board
@@ -102,14 +118,13 @@ function App() {
               ))}
               {provided.placeholder}
             </Boards>
-            {provided.placeholder}
-          </Wrapper>
-        )}
-      </Droppable>
+          )}
+        </Droppable>
+      </Wrapper>
       <Droppable droppableId="wastebasket">
         {(provided) => (
           <Wastebasket ref={provided.innerRef} {...provided.droppableProps}>
-            🗑️
+            <span style={{ position: "fixed" }}>🗑️</span>
             {provided.placeholder}
           </Wastebasket>
         )}
