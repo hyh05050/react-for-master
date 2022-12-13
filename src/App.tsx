@@ -1,95 +1,120 @@
-import { useRecoilState, useRecoilValue } from "recoil";
-import { createGlobalStyle } from "styled-components";
-import { hourSelector, minuteState } from "./atoms";
+import styled from "styled-components";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { useRecoilState } from "recoil";
+import { boardState, toDoState } from "./atoms";
+import Board from "./Components/Board";
+import { useEffect } from "react";
 
-const GlobalStyle = createGlobalStyle`
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, menu, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-main, menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure,
-footer, header, hgroup, main, menu, nav, section {
-  display: block;
-}
-/* HTML5 hidden-attribute fix for newer browsers */
-*[hidden] {
-    display: none;
-}
-body {
-  line-height: 1;
-}
-menu, ol, ul {
-  list-style: none;
-}
-blockquote, q {
-  quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-  content: '';
-  content: none;
-}
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-* {
-  box-sizing: border-box;
-}
-body {
-  font-family: 'Source Sans Pro', sans-serif;
-  background-color:${(props) => props.theme.bgColor};
-  color:${(props) => props.theme.textColor}
-}
-a {
-  text-decoration:none;
-  color:inherit;
-}
+const Wrapper = styled.div`
+  display: flex;
+  width: 100vw;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+`;
+
+const Boards = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  gap: 10px;
+  position: fixed;
+`;
+
+const Wastebasket = styled.div`
+  width: 150px;
+  height: 150px;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 100px;
 `;
 
 function App() {
-  const [minutes, setMinutes] = useRecoilState(minuteState);
-  const [hours, setHours] = useRecoilState(hourSelector);
-  const onMinutesChange = (event: React.FormEvent<HTMLInputElement>) => {
-    setMinutes(Number(event.currentTarget.value));
-  };
-  const onHoursChange = (event: React.FormEvent<HTMLInputElement>) => {
-    setHours(Number(event.currentTarget.value));
+  const [boards, setBoards] = useRecoilState(boardState);
+  const [toDos, setToDos] = useRecoilState(toDoState);
+  const preTodos = JSON.parse(localStorage.getItem("todos") as string);
+  const preBoards = JSON.parse(localStorage.getItem("boards") as string);
+  useEffect(() => {
+    if (preBoards) {
+      setBoards(preBoards);
+      console.log("Init Boards Data");
+    }
+    if (preTodos) {
+      setToDos({
+        ...preTodos,
+      });
+      console.log("Init Todos Data");
+    }
+  }, []);
+
+  const onDragEnd = ({ destination, source }: DropResult) => {
+    let isSameDrop = false;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId) isSameDrop = true;
+    if (isSameDrop && destination.index === source.index) return;
+    console.log(source, destination);
+    if (source.droppableId === "boards") {
+      if (destination.droppableId === "wastebasket") return;
+      setBoards((prev) => {
+        const boards = [...prev];
+        const board = boards.splice(source.index, 1)[0];
+        boards.splice(destination.index, 0, board);
+        localStorage.setItem("boards", JSON.stringify(boards));
+        return boards;
+      });
+    } else {
+      setToDos((prev) => {
+        const startPoint = [...prev[source.droppableId]];
+        const dragItem = startPoint.splice(source.index, 1)[0];
+        console.log(dragItem);
+        startPoint.splice(source.index, 1);
+        const endPoint = isSameDrop
+          ? startPoint
+          : [...prev[destination.droppableId]];
+        endPoint.splice(destination.index, 0, dragItem);
+        const newTodos = {
+          ...prev,
+          [source.droppableId]: startPoint,
+        };
+        if (!isSameDrop) newTodos[destination.droppableId] = endPoint;
+        localStorage.setItem("todos", JSON.stringify(newTodos));
+        return newTodos;
+      });
+    }
   };
   return (
-    <>
-      <GlobalStyle />
-      <input
-        type="number"
-        placeholder="Minutes"
-        value={minutes}
-        onChange={onMinutesChange}
-      />
-      <input
-        type="number"
-        placeholder="Hours"
-        value={hours}
-        onChange={onHoursChange}
-      />
-    </>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="boards">
+        {(provided) => (
+          <Wrapper>
+            <Boards ref={provided.innerRef} {...provided.droppableProps}>
+              {boards.map((board, index) => (
+                <Board
+                  board={board}
+                  toDos={toDos[board]}
+                  key={board}
+                  index={index}
+                />
+              ))}
+              {provided.placeholder}
+            </Boards>
+            {provided.placeholder}
+          </Wrapper>
+        )}
+      </Droppable>
+      <Droppable droppableId="wastebasket">
+        {(provided) => (
+          <Wastebasket ref={provided.innerRef} {...provided.droppableProps}>
+            🗑️
+            {provided.placeholder}
+          </Wastebasket>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 }
 
