@@ -1,9 +1,10 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
 import { ThemeProvider } from "styled-components";
 import App from "./App";
-import { cardTheme } from "./theme";
+import { darkTheme } from "./theme";
+
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -59,9 +60,11 @@ table {
   box-sizing: border-box;
 }
 body {
+  font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
-  background-color:${(props) => props.theme.bgColor};
   color:black;
+  line-height: 1.2;
+  background:linear-gradient(135deg,#e09,#d0e);
 }
 a {
   text-decoration:none;
@@ -69,14 +72,14 @@ a {
 }
 `;
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(
-  <RecoilRoot>
-    <ThemeProvider theme={cardTheme}>
-      <GlobalStyle />
-      <App />
-    </ThemeProvider>
-  </RecoilRoot>
+ReactDOM.render(
+  <React.StrictMode>
+    <RecoilRoot>
+      <ThemeProvider theme={darkTheme}>
+        <GlobalStyle />
+        <App />
+      </ThemeProvider>
+    </RecoilRoot>
+  </React.StrictMode>,
+  document.getElementById("root")
 );

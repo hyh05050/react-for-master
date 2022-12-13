@@ -12,8 +12,4 @@ import { DefaultTheme } from "styled-components";
 //   accentColor: "#9c88ff",
 // };
 
-export const cardTheme: DefaultTheme = {
-  bgColor: "#3f8cf2",
-  boardColor: "#dadfe9",
-  cardColor: "white",
-};
+export const darkTheme: DefaultTheme = {};

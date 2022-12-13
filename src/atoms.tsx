@@ -5,28 +5,15 @@ export interface ITodo {
   text: string;
 }
 
-interface ITodoState {
+interface IToDoState {
   [key: string]: ITodo[];
 }
 
-export const toDoState = atom<ITodoState>({
+export const toDoState = atom<IToDoState>({
   key: "toDo",
   default: {
-    to_do: [],
-    doing: [],
-    done: [],
-  },
-});
-
-export const boardState = atom({
-  key: "board",
-  default: ["to_do", "doing", "done"],
-});
-
-export const dropState = atom({
-  key: "isDropDisabled",
-  default: {
-    boardDropFg: false,
-    todoDropFg: false,
+    "To Do": [],
+    Doing: [],
+    Done: [],
   },
 });
