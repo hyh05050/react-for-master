@@ -6,7 +6,7 @@ import Tv from "./Routes/Tv";
 
 function App() {
   return (
-    <Router>
+    <Router basename="react-for-master">
       <Header />
       <Routes>
         <Route path="/tv" element={<Tv />}>
