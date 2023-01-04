@@ -5,6 +5,7 @@ import { ThemeProvider } from "styled-components";
 import App from "./App";
 import { theme } from "./theme";
 import { createGlobalStyle } from "styled-components";
+import { QueryClient, QueryClientProvider } from "react-query";
 import "./common.css";
 
 const GlobalStyle = createGlobalStyle`
@@ -61,15 +62,18 @@ table {
 body {
   font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
-  color:black;
+  color:${(props) => props.theme.white.darker};
   line-height: 1.2;
-  background:linear-gradient(135deg,#e09,#d0e);
+  //background:linear-gradient(135deg,#e09,#d0e);
+  background-color: black;
 }
 a {
   text-decoration:none;
   color:inherit;
 }
 `;
+
+const client = new QueryClient();
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -78,10 +82,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <RecoilRoot>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <App />
-      </ThemeProvider>
+      <QueryClientProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <App />
+        </ThemeProvider>
+      </QueryClientProvider>
     </RecoilRoot>
   </React.StrictMode>
 );
